@@ -1,10 +1,22 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useRouter } from 'next/router';
 
-const variants = [
+
+type Transition = {
+    route: string,
+    variants: Variants,
+    config: {
+        animate?: string | Array<string>,
+        initial?: string | Array<string>,
+        exit?: string | Array<string>,
+        className?: string
+    }
+}
+
+const transitions: Transition[] = [
     {
         route: '/',
-        variant: {
+        variants: {
             out: {
                 opacity: 0,
                 y: 40,
@@ -20,17 +32,18 @@ const variants = [
                     duration: 0.3,
                     ease: 'easeInOut'
                 }
-            },
+            }
         },
         config : {
             animate: 'in',
             initial: 'out',
-            exit: 'out'
+            exit: 'out',
+            className: ''
         }
     },
     {
         route: '/slide-transition',
-        variant: {
+        variants: {
             inactive: {
                 opacity: 1,
                 y: 0,
@@ -65,45 +78,45 @@ const variants = [
     },
     {
         route: '/scale-transition',
-        variant: {
+        variants: {
             scaleDown: {
                 scale: 0.8,
                 y: 100,
                 transition: {
-                  duration: 0.4
+                    duration: 0.4
                 }
-              },
-              out: {
+            },
+            out: {
                 x: "-100%",
                 transition: {
-                  duration: 0.4,
-                  delay: 0.5
+                    duration: 0.4,
+                    delay: 0.5
                 }
-              },
-              in: {
+            },
+            in: {
                 scale: 0.8,
                 y: 100,
                 x: "100%",
                 transition: {
-                  duration: 0.4
+                    duration: 0.4
                 }
-              },
-              center: {
+            },
+            center: {
                 x: 0,
                 scale: 0.8,
                 transformOrigin: 'top',
                 transition: {
-                  duration: 0.4
+                    duration: 0.4
                 }
-              },
-              scaleUp: {
+            },
+            scaleUp: {
                 scale: 1,
                 y: 0,
                 transition: {
-                  duration: 0.4,
-                  delay: 0.5
+                    duration: 0.4,
+                    delay: 0.5
                 }
-              },
+            },
         },
         config : {
             animate: ['center', 'scaleUp'],
@@ -114,13 +127,18 @@ const variants = [
     }
 ]
 
+
 const Transition = ({children}: any) => {
 	const { asPath } = useRouter();
-    console.log(asPath)
 
-    var transition = variants.filter(obj => {
+    let transition = transitions.filter(obj => {
         return obj.route === asPath
-    }).shift()
+    }).shift() || transitions[0]
+
+    if(!transition) {
+        transition = transitions[0]
+    }
+
 
     return (
         <div className={'page-transition '}>
@@ -131,10 +149,10 @@ const Transition = ({children}: any) => {
             >
                 <motion.div
                 key={asPath}
-                variants={transition?.variant}
-                animate={transition?.config.animate}
-                initial={transition?.config.initial}
-                exit={transition?.config.exit}
+                variants={transition.variants}
+                animate={transition.config.animate}
+                initial={transition.config.initial}
+                exit={transition.config.exit}
                 >
                     {children}
                 </motion.div>
